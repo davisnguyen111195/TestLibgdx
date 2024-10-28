@@ -22,7 +22,7 @@ class GameScreen : Screen {
     private lateinit var background: Texture
 
     private var textureAtlas: TextureAtlas
-    private var backgrounds : Array<TextureRegion?>
+    private var backgrounds: Array<TextureRegion?>
 
 
     private lateinit var playerShipTextureRegion: TextureRegion
@@ -42,8 +42,8 @@ class GameScreen : Screen {
     private val WORLD_HEIGHT = 128F
 
     //game object
-    private var playerShip
-    private var enemyShip
+    private var playerShip: Ship
+    private var enemyShip: Ship
 
     init {
         camera = OrthographicCamera()
@@ -51,19 +51,31 @@ class GameScreen : Screen {
 
         //set up the texture atlas
         textureAtlas = TextureAtlas("images.atlas")
-        backgrounds = Array(4) {null}
+        backgrounds = Array(4) { null }
 
         backgrounds[0] = textureAtlas.findRegion("Starscape00")
         backgrounds[1] = textureAtlas.findRegion("Starscape01")
         backgrounds[2] = textureAtlas.findRegion("Starscape02")
         backgrounds[3] = textureAtlas.findRegion("Starscape03")
 
+        playerShipTextureRegion = textureAtlas.findRegion("playerShip2_blue")
+        playerShieldTextureRegion = textureAtlas.findRegion("shield1")
 
+        enemyShipTextureRegion = textureAtlas.findRegion("enemyRed3")
+        enemyShieldTextureRegion = textureAtlas.findRegion("shield2")
         backgroundMaxScrollingSpeed = WORLD_HEIGHT / 4
 
 
         //setup game object
-        playerShip = Ship()
+        playerShip = Ship(
+            WORLD_WIDTH / 2, WORLD_HEIGHT / 4, 10f, 10f,
+            2f, 3, playerShipTextureRegion, playerShieldTextureRegion
+        )
+
+        enemyShip = Ship(
+            WORLD_WIDTH  / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
+            2f, 1, enemyShipTextureRegion, enemyShieldTextureRegion
+        )
 
 
         //background = Texture("darkPurpleStarscape.png")
@@ -87,6 +99,14 @@ class GameScreen : Screen {
         //scrolling background
         renderBackground(delta)
 
+        //enemy ship
+        enemyShip.draw(batch)
+        //player ship
+        playerShip.draw(batch)
+        //lasers
+
+        //explosions
+
         batch.end()
 
     }
@@ -97,20 +117,20 @@ class GameScreen : Screen {
         backgroundOffsets[2] += delta * backgroundMaxScrollingSpeed / 2
         backgroundOffsets[3] += delta * backgroundMaxScrollingSpeed
         for (i in backgrounds.indices) {
-            if (backgroundOffsets[i] > WORLD_WIDTH) {
+            if (backgroundOffsets[i] > WORLD_HEIGHT) {
                 backgroundOffsets[i] = 0f
             }
             batch.draw(
                 backgrounds[i],
-                backgroundOffsets[i],
-                0f,
+                0f, -backgroundOffsets[i],
                 WORLD_WIDTH,
                 WORLD_HEIGHT
+
             )
             batch.draw(
                 backgrounds[i],
-                backgroundOffsets[i] - WORLD_WIDTH,
                 0f,
+                -backgroundOffsets[i] + WORLD_HEIGHT,
                 WORLD_WIDTH,
                 WORLD_HEIGHT
             )
