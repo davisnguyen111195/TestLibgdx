@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import java.util.LinkedList
 
 class GameScreen : Screen {
     //screen
@@ -44,6 +45,8 @@ class GameScreen : Screen {
     //game object
     private var playerShip: Ship
     private var enemyShip: Ship
+    private var playerLaserList: LinkedList<Laser>
+    private var enemyLaserList: LinkedList<Laser>
 
     init {
         camera = OrthographicCamera()
@@ -73,10 +76,12 @@ class GameScreen : Screen {
         )
 
         enemyShip = Ship(
-            WORLD_WIDTH  / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
+            WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
             2f, 1, enemyShipTextureRegion, enemyShieldTextureRegion
         )
 
+        playerLaserList = LinkedList()
+        enemyLaserList = LinkedList()
 
         //background = Texture("darkPurpleStarscape.png")
         //backgroundOffset = 0

@@ -3,7 +3,7 @@ package io.github.TestLibgdx
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
-class Ship(
+abstract class Ship(
 
 
     //position & dimension
@@ -15,23 +15,49 @@ class Ship(
     movementSpeed: Float,
     shield: Int,
     //graphics
-    shipTexture: TextureRegion,
-    shieldTexture: TextureRegion
+    shipTextureRegion: TextureRegion,
+    shieldTextureRegion: TextureRegion,
+    laserTextureRegion: TextureRegion,
+
+    // laser information
+    laserWidth: Float,
+    laserHeight: Float,
+    laserMovementSpeed: Float,
+    timeBetweenShots: Float
+
 ) {
+
     //ship characteristics
-    private val mMovementSpeed: Float = movementSpeed
-    private val mShield: Int = shield
+    val mMovementSpeed: Float = movementSpeed
+    val mShield: Int = shield
 
     //position & dimension
-    private val mXPosition: Float = xCenter - width / 2
-    private val mYPosition: Float = yCenter - height / 2
-    private val mWidth: Float = width
-    private val mHeight: Float = height
+    val mXPosition: Float = xCenter - width / 2
+    val mYPosition: Float = yCenter - height / 2
+    val mWidth: Float = width
+    val mHeight: Float = height
 
     //graphics
-    private val mShipTexture: TextureRegion = shipTexture
-    private val msShieldTexture: TextureRegion = shieldTexture
+    val mShipTexture: TextureRegion = shipTextureRegion
+    val msShieldTexture: TextureRegion = shieldTextureRegion
+    val mLaserTextureRegion: TextureRegion = laserTextureRegion
+    var mLaserMovementSpeed: Float = laserMovementSpeed
+    var mTimeSinceLastShot: Float = 0f
+    var mTimeBetweenShots: Float = timeBetweenShots
 
+    //laser
+    val mLaserWidth: Float = laserWidth
+    val mLaserHeight: Float = laserHeight
+
+    fun update(delta: Float) {
+        mTimeSinceLastShot += delta
+    }
+
+    fun canFireLaser(): Boolean {
+        return mTimeSinceLastShot - mTimeBetweenShots >= 0
+    }
+
+    abstract fun fireLasers(): Array<Laser?>
 
     fun draw(batch: Batch) {
         batch.draw(mShipTexture, mXPosition, mYPosition, mWidth, mHeight)
