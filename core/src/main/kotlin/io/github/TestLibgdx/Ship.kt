@@ -32,8 +32,11 @@ abstract class Ship(
     val mShield: Int = shield
 
     //position & dimension
-    val mXPosition: Float = xCenter - width / 2
-    val mYPosition: Float = yCenter - height / 2
+    var mXPosition: Float = xCenter - width / 2
+
+    var mYPosition: Float = yCenter - height / 2
+
+
     val mWidth: Float = width
     val mHeight: Float = height
 

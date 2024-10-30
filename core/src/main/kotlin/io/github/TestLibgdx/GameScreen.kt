@@ -7,14 +7,15 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import java.util.LinkedList
 
 class GameScreen : Screen {
     //screen
-    private lateinit var camera: OrthographicCamera
-    private lateinit var viewPort: StretchViewport
+    private var camera: OrthographicCamera
+    private var viewPort: FitViewport
 
 
     //graphics
@@ -26,12 +27,12 @@ class GameScreen : Screen {
     private var backgrounds: Array<TextureRegion?>
 
 
-    private lateinit var playerShipTextureRegion: TextureRegion
-    private lateinit var playerShieldTextureRegion: TextureRegion
-    private lateinit var enemyShipTextureRegion: TextureRegion
-    private lateinit var enemyShieldTextureRegion: TextureRegion
-    private lateinit var playerLaserTextureRegion: TextureRegion
-    private lateinit var enemyLaserTextureRegion: TextureRegion
+    private var playerShipTextureRegion: TextureRegion
+    private var playerShieldTextureRegion: TextureRegion
+    private var enemyShipTextureRegion: TextureRegion
+    private var enemyShieldTextureRegion: TextureRegion
+    private var playerLaserTextureRegion: TextureRegion
+    private var enemyLaserTextureRegion: TextureRegion
 
     //timming
     private var backgroundOffset = 0
@@ -50,7 +51,7 @@ class GameScreen : Screen {
 
     init {
         camera = OrthographicCamera()
-        viewPort = StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera)
+        viewPort = FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera)
 
         //set up the texture atlas
         textureAtlas = TextureAtlas("images.atlas")
@@ -67,17 +68,32 @@ class GameScreen : Screen {
         enemyShipTextureRegion = textureAtlas.findRegion("enemyRed3")
         enemyShieldTextureRegion = textureAtlas.findRegion("shield2")
         backgroundMaxScrollingSpeed = WORLD_HEIGHT / 4
-
+        playerLaserTextureRegion = textureAtlas.findRegion("laserBlue03")
+        enemyLaserTextureRegion = textureAtlas.findRegion("laserRed03")
 
         //setup game object
-        playerShip = Ship(
+        playerShip = PlayerShip(
             WORLD_WIDTH / 2, WORLD_HEIGHT / 4, 10f, 10f,
-            2f, 3, playerShipTextureRegion, playerShieldTextureRegion
+            2f, 3,
+            playerShipTextureRegion,
+            playerShieldTextureRegion,
+            playerLaserTextureRegion,
+            0.4f,
+            4f,
+            45f,
+            0.5f
         )
 
-        enemyShip = Ship(
+        enemyShip = EnemyShip(
             WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
-            2f, 1, enemyShipTextureRegion, enemyShieldTextureRegion
+            2f, 1,
+            enemyShipTextureRegion,
+            enemyShieldTextureRegion,
+            enemyLaserTextureRegion,
+            0.3f,
+            5f,
+            50f,
+            0.8f
         )
 
         playerLaserList = LinkedList()
@@ -101,6 +117,10 @@ class GameScreen : Screen {
     override fun render(delta: Float) {
         batch.begin()
 
+        playerShip.update(delta)
+        enemyShip.update(delta)
+
+
         //scrolling background
         renderBackground(delta)
 
@@ -109,7 +129,46 @@ class GameScreen : Screen {
         //player ship
         playerShip.draw(batch)
         //lasers
+        if(playerShip.canFireLaser()){
+            val lasers = playerShip.fireLasers()
+            for(laser in lasers){
+                if (laser != null) {
+                    playerLaserList.add(laser)
+                }
+            }
+        }
 
+        if(enemyShip.canFireLaser()){
+            val lasers = enemyShip.fireLasers()
+            for(laser in lasers){
+                if (laser != null) {
+                    enemyLaserList.add(laser)
+                }
+            }
+        }
+
+        //draw lasers
+        var listIterator = playerLaserList.listIterator()
+        while(listIterator.hasNext()) {
+            val laser = listIterator.next()
+            laser.draw(batch)
+            laser.mYPosition += laser.mMovementSpeed * delta
+            if(laser.mYPosition > WORLD_HEIGHT){
+                listIterator.remove()
+            }
+
+        }
+
+        listIterator = enemyLaserList.listIterator()
+        while(listIterator.hasNext()) {
+            val laser = listIterator.next()
+            laser.draw(batch)
+            laser.mYPosition -= laser.mMovementSpeed * delta
+            if(laser.mYPosition + laser.mHeight < 0f){
+                listIterator.remove()
+            }
+
+        }
         //explosions
 
         batch.end()

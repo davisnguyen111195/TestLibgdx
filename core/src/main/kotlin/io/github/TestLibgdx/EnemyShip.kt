@@ -2,7 +2,7 @@ package io.github.TestLibgdx
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
-class PlayerShip(
+class EnemyShip(
     xCenter: Float,
     yCenter: Float,
     width: Float,
@@ -32,21 +32,19 @@ class PlayerShip(
     timeBetweenShots
 ) {
 
-
-
     override fun fireLasers(): Array<Laser?> {
         val laser: Array<Laser?> = Array(2) { null }
         laser[0] = Laser(
-            mXPosition + mWidth * 0.07f,
-            mYPosition + mHeight * 0.45f,
+            mXPosition + mWidth * 0.18f,
+            mYPosition,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,
             mLaserTextureRegion
         )
         laser[1] = Laser(
-            mXPosition + mWidth * 0.93f,
-            mYPosition + mHeight * 0.45f,
+            mXPosition + mWidth * 0.82f,
+            mYPosition,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,

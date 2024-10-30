@@ -16,13 +16,29 @@ class Laser(
     laserTextureRegion: TextureRegion
 ) {
     //position & dimension
-    private var mXPosition: Float = xPosition
-    private var mYPosition: Float = yPosition
-    private var mWidth: Float = width
-    private var mHeight: Float = height
+    var mXPosition: Float = xPosition
+        get() = field
+        set(value) {
+            field = value
+        }
+    var mYPosition: Float = yPosition
+        get() = field
+        set(value) {
+            field = value
+        }
+    val mWidth: Float = width
+    var mHeight: Float = height
+        get() = field
+        set(value) {
+            field = value
+        }
 
     //laser physical characteristics
-    private var mMovementSpeed: Float = movementSpeed
+    var mMovementSpeed: Float = movementSpeed
+        get() = field
+        set(value) {
+            field = value
+        }
 
     //graphic
     private var mLaserTextureRegion: TextureRegion = laserTextureRegion
