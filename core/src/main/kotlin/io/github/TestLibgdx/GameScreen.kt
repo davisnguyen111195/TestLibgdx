@@ -67,6 +67,7 @@ class GameScreen : Screen {
 
         enemyShipTextureRegion = textureAtlas.findRegion("enemyRed3")
         enemyShieldTextureRegion = textureAtlas.findRegion("shield2")
+        enemyShieldTextureRegion.flip(false, true)
         backgroundMaxScrollingSpeed = WORLD_HEIGHT / 4
         playerLaserTextureRegion = textureAtlas.findRegion("laserBlue03")
         enemyLaserTextureRegion = textureAtlas.findRegion("laserRed03")
@@ -129,18 +130,18 @@ class GameScreen : Screen {
         //player ship
         playerShip.draw(batch)
         //lasers
-        if(playerShip.canFireLaser()){
+        if (playerShip.canFireLaser()) {
             val lasers = playerShip.fireLasers()
-            for(laser in lasers){
+            for (laser in lasers) {
                 if (laser != null) {
                     playerLaserList.add(laser)
                 }
             }
         }
 
-        if(enemyShip.canFireLaser()){
+        if (enemyShip.canFireLaser()) {
             val lasers = enemyShip.fireLasers()
-            for(laser in lasers){
+            for (laser in lasers) {
                 if (laser != null) {
                     enemyLaserList.add(laser)
                 }
@@ -149,22 +150,22 @@ class GameScreen : Screen {
 
         //draw lasers
         var listIterator = playerLaserList.listIterator()
-        while(listIterator.hasNext()) {
+        while (listIterator.hasNext()) {
             val laser = listIterator.next()
             laser.draw(batch)
             laser.mYPosition += laser.mMovementSpeed * delta
-            if(laser.mYPosition > WORLD_HEIGHT){
+            if (laser.mYPosition > WORLD_HEIGHT) {
                 listIterator.remove()
             }
 
         }
 
         listIterator = enemyLaserList.listIterator()
-        while(listIterator.hasNext()) {
+        while (listIterator.hasNext()) {
             val laser = listIterator.next()
             laser.draw(batch)
             laser.mYPosition -= laser.mMovementSpeed * delta
-            if(laser.mYPosition + laser.mHeight < 0f){
+            if (laser.mYPosition + laser.mHeight < 0f) {
                 listIterator.remove()
             }
 
