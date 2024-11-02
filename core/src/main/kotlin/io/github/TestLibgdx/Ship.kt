@@ -93,4 +93,9 @@ abstract class Ship(
             )
         }
     }
+
+    fun translate(xChange: Float, yChange: Float) {
+        mBoundingBox.setPosition(mBoundingBox.x + xChange, mBoundingBox.y + yChange)
+    }
+
 }
