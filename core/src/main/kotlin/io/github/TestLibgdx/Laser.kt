@@ -2,6 +2,7 @@ package io.github.TestLibgdx
 
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Rectangle
 
 class Laser(
 
@@ -50,5 +51,9 @@ class Laser(
             mWidth,
             mHeight
         )
+    }
+
+    fun getBoundingBox() : Rectangle{
+        return Rectangle(mXPosition, mYPosition, mWidth, mHeight)
     }
 }

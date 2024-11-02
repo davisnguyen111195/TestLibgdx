@@ -75,7 +75,7 @@ class GameScreen : Screen {
         //setup game object
         playerShip = PlayerShip(
             WORLD_WIDTH / 2, WORLD_HEIGHT / 4, 10f, 10f,
-            2f, 3,
+            2f, 6,
             playerShipTextureRegion,
             playerShieldTextureRegion,
             playerLaserTextureRegion,
@@ -87,7 +87,7 @@ class GameScreen : Screen {
 
         enemyShip = EnemyShip(
             WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
-            2f, 1,
+            2f, 5,
             enemyShipTextureRegion,
             enemyShieldTextureRegion,
             enemyLaserTextureRegion,
@@ -130,6 +130,47 @@ class GameScreen : Screen {
         //player ship
         playerShip.draw(batch)
         //lasers
+
+        renderLaser(delta)
+
+        // detect collisions between lasers and ships
+        detectCollistions()
+        //explosions
+        renderExplosions(delta)
+        batch.end()
+
+    }
+
+    fun detectCollistions() {
+        //for each player laser, check whether it intersects an enemy ship
+        var listIterator = playerLaserList.listIterator()
+        while (listIterator.hasNext()) {
+            val laser = listIterator.next()
+            if(enemyShip.intersects(laser.getBoundingBox())){
+                //contact with enemy ship
+                enemyShip.hit(laser)
+                listIterator.remove()
+            }
+        }
+
+
+        //for each enemy laser, check whether it intersects an player ship
+        listIterator = enemyLaserList.listIterator()
+        while (listIterator.hasNext()) {
+            val laser = listIterator.next()
+            if(playerShip.intersects(laser.getBoundingBox())){
+                //contact with enemy ship
+                playerShip.hit(laser)
+                listIterator.remove()
+            }
+        }
+    }
+
+    fun renderExplosions(delta: Float) {
+
+    }
+
+    fun renderLaser(delta: Float) {
         if (playerShip.canFireLaser()) {
             val lasers = playerShip.fireLasers()
             for (laser in lasers) {
@@ -170,10 +211,6 @@ class GameScreen : Screen {
             }
 
         }
-        //explosions
-
-        batch.end()
-
     }
 
     private fun renderBackground(delta: Float) {

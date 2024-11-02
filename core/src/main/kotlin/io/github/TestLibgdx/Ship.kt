@@ -2,6 +2,7 @@ package io.github.TestLibgdx
 
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Rectangle
 
 abstract class Ship(
 
@@ -29,16 +30,17 @@ abstract class Ship(
 
     //ship characteristics
     val mMovementSpeed: Float = movementSpeed
-    val mShield: Int = shield
+    var mShield: Int = shield
 
     //position & dimension
     var mXPosition: Float = xCenter - width / 2
 
     var mYPosition: Float = yCenter - height / 2
-
-
     val mWidth: Float = width
     val mHeight: Float = height
+    val mBoundingBox : Rectangle = Rectangle(mXPosition, mYPosition, mWidth, mHeight)
+
+
 
     //graphics
     val mShipTexture: TextureRegion = shipTextureRegion
@@ -53,6 +55,7 @@ abstract class Ship(
     val mLaserHeight: Float = laserHeight
 
     fun update(delta: Float) {
+        mBoundingBox.set(mXPosition, mYPosition, mWidth, mHeight)
         mTimeSinceLastShot += delta
     }
 
@@ -61,6 +64,16 @@ abstract class Ship(
     }
 
     abstract fun fireLasers(): Array<Laser?>
+
+    fun intersects(otherRectangle: Rectangle): Boolean {
+        return mBoundingBox.overlaps(otherRectangle)
+    }
+
+    fun hit(laser: Laser){
+        if(mShield > 0){
+            mShield--
+        }
+    }
 
     fun draw(batch: Batch) {
         batch.draw(mShipTexture, mXPosition, mYPosition, mWidth, mHeight)
