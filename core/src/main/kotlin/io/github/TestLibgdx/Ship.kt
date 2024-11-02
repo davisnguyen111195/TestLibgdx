@@ -33,13 +33,13 @@ abstract class Ship(
     var mShield: Int = shield
 
     //position & dimension
-    var mXPosition: Float = xCenter - width / 2
-
-    var mYPosition: Float = yCenter - height / 2
-    val mWidth: Float = width
-    val mHeight: Float = height
-    val mBoundingBox : Rectangle = Rectangle(mXPosition, mYPosition, mWidth, mHeight)
-
+//    var mXPosition: Float = xCenter - width / 2
+//
+//    var mYPosition: Float = yCenter - height / 2
+//    val mWidth: Float = width
+//    val mHeight: Float = height
+    val mBoundingBox: Rectangle =
+        Rectangle(xCenter - width / 2, yCenter - height / 2, width, height)
 
 
     //graphics
@@ -55,7 +55,7 @@ abstract class Ship(
     val mLaserHeight: Float = laserHeight
 
     fun update(delta: Float) {
-        mBoundingBox.set(mXPosition, mYPosition, mWidth, mHeight)
+        //mBoundingBox.set(mXPosition, mYPosition, mWidth, mHeight)
         mTimeSinceLastShot += delta
     }
 
@@ -69,16 +69,28 @@ abstract class Ship(
         return mBoundingBox.overlaps(otherRectangle)
     }
 
-    fun hit(laser: Laser){
-        if(mShield > 0){
+    fun hit(laser: Laser) {
+        if (mShield > 0) {
             mShield--
         }
     }
 
     fun draw(batch: Batch) {
-        batch.draw(mShipTexture, mXPosition, mYPosition, mWidth, mHeight)
+        batch.draw(
+            mShipTexture,
+            mBoundingBox.x,
+            mBoundingBox.y,
+            mBoundingBox.width,
+            mBoundingBox.height
+        )
         if (mShield > 0) {
-            batch.draw(msShieldTexture, mXPosition, mYPosition, mWidth, mHeight)
+            batch.draw(
+                msShieldTexture,
+                mBoundingBox.x,
+                mBoundingBox.y,
+                mBoundingBox.width,
+                mBoundingBox.height
+            )
         }
     }
 }

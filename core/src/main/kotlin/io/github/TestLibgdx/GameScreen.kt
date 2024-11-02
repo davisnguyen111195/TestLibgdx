@@ -100,8 +100,6 @@ class GameScreen : Screen {
         playerLaserList = LinkedList()
         enemyLaserList = LinkedList()
 
-        //background = Texture("darkPurpleStarscape.png")
-        //backgroundOffset = 0
         batch = SpriteBatch()
 
 
@@ -146,7 +144,7 @@ class GameScreen : Screen {
         var listIterator = playerLaserList.listIterator()
         while (listIterator.hasNext()) {
             val laser = listIterator.next()
-            if(enemyShip.intersects(laser.getBoundingBox())){
+            if(enemyShip.intersects(laser.mBoundingBox)){
                 //contact with enemy ship
                 enemyShip.hit(laser)
                 listIterator.remove()
@@ -158,7 +156,7 @@ class GameScreen : Screen {
         listIterator = enemyLaserList.listIterator()
         while (listIterator.hasNext()) {
             val laser = listIterator.next()
-            if(playerShip.intersects(laser.getBoundingBox())){
+            if(playerShip.intersects(laser.mBoundingBox)){
                 //contact with enemy ship
                 playerShip.hit(laser)
                 listIterator.remove()
@@ -194,8 +192,8 @@ class GameScreen : Screen {
         while (listIterator.hasNext()) {
             val laser = listIterator.next()
             laser.draw(batch)
-            laser.mYPosition += laser.mMovementSpeed * delta
-            if (laser.mYPosition > WORLD_HEIGHT) {
+            laser.mBoundingBox.y += laser.mMovementSpeed * delta
+            if (laser.mBoundingBox.y > WORLD_HEIGHT) {
                 listIterator.remove()
             }
 
@@ -205,8 +203,8 @@ class GameScreen : Screen {
         while (listIterator.hasNext()) {
             val laser = listIterator.next()
             laser.draw(batch)
-            laser.mYPosition -= laser.mMovementSpeed * delta
-            if (laser.mYPosition + laser.mHeight < 0f) {
+            laser.mBoundingBox.y -= laser.mMovementSpeed * delta
+            if (laser.mBoundingBox.y + laser.mBoundingBox.height < 0f) {
                 listIterator.remove()
             }
 

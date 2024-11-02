@@ -35,16 +35,16 @@ class EnemyShip(
     override fun fireLasers(): Array<Laser?> {
         val laser: Array<Laser?> = Array(2) { null }
         laser[0] = Laser(
-            mXPosition + mWidth * 0.18f,
-            mYPosition,
+            mBoundingBox.x + mBoundingBox.width * 0.18f,
+            mBoundingBox.y - mLaserHeight,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,
             mLaserTextureRegion
         )
         laser[1] = Laser(
-            mXPosition + mWidth * 0.82f,
-            mYPosition,
+            mBoundingBox.x + mBoundingBox.width * 0.82f,
+            mBoundingBox.y - mLaserHeight,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,

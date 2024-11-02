@@ -33,20 +33,19 @@ class PlayerShip(
 ) {
 
 
-
     override fun fireLasers(): Array<Laser?> {
         val laser: Array<Laser?> = Array(2) { null }
         laser[0] = Laser(
-            mXPosition + mWidth * 0.07f,
-            mYPosition + mHeight * 0.45f,
+            mBoundingBox.x + mBoundingBox.width * 0.07f,
+            mBoundingBox.y + mBoundingBox.height * 0.45f,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,
             mLaserTextureRegion
         )
         laser[1] = Laser(
-            mXPosition + mWidth * 0.93f,
-            mYPosition + mHeight * 0.45f,
+            mBoundingBox.x + mBoundingBox.width * 0.93f,
+            mBoundingBox.y + mBoundingBox.height * 0.45f,
             mLaserWidth,
             mLaserHeight,
             mLaserMovementSpeed,

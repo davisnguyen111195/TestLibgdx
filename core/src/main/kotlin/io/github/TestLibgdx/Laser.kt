@@ -43,17 +43,20 @@ class Laser(
 
     //graphic
     private var mLaserTextureRegion: TextureRegion = laserTextureRegion
+    var mBoundingBox: Rectangle = Rectangle(
+        mXPosition - mWidth / 2,
+        mYPosition - mHeight / 2,
+        mWidth,
+        mHeight
+    )
+        get() = field
+
     fun draw(batch: Batch) {
         batch.draw(
             mLaserTextureRegion,
-            mXPosition - mWidth / 2,
-            mYPosition - mHeight / 2,
-            mWidth,
-            mHeight
+            mBoundingBox.x, mBoundingBox.y, mBoundingBox.width, mBoundingBox.height
         )
     }
 
-    fun getBoundingBox() : Rectangle{
-        return Rectangle(mXPosition, mYPosition, mWidth, mHeight)
-    }
+
 }
