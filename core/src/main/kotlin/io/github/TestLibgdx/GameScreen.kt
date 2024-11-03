@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
+import org.w3c.dom.css.Rect
 import java.util.LinkedList
 
 class GameScreen : Screen {
@@ -25,7 +27,7 @@ class GameScreen : Screen {
 
     private var textureAtlas: TextureAtlas
     private var backgrounds: Array<TextureRegion?>
-
+    private var explosionTexture: Texture
 
     private var playerShipTextureRegion: TextureRegion
     private var playerShieldTextureRegion: TextureRegion
@@ -38,7 +40,7 @@ class GameScreen : Screen {
     private var backgroundOffset = 0
     private val backgroundOffsets = Array(4) { 0F }
     private var backgroundMaxScrollingSpeed = 0f
-    private val timeBetweenEnemySpawns = 3f
+    private val timeBetweenEnemySpawns = 1f
     private var enemySpawnTimer = 0f
 
     //world
@@ -52,6 +54,8 @@ class GameScreen : Screen {
     private var playerLaserList: LinkedList<Laser>
     private var enemyLaserList: LinkedList<Laser>
 
+    private lateinit var explosionList: LinkedList<Explosion>
+
     init {
         camera = OrthographicCamera()
         viewPort = FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera)
@@ -59,7 +63,7 @@ class GameScreen : Screen {
         //set up the texture atlas
         textureAtlas = TextureAtlas("images.atlas")
         backgrounds = Array(4) { null }
-
+        explosionTexture = Texture("explosion.png")
         backgrounds[0] = textureAtlas.findRegion("Starscape00")
         backgrounds[1] = textureAtlas.findRegion("Starscape01")
         backgrounds[2] = textureAtlas.findRegion("Starscape02")
@@ -93,6 +97,8 @@ class GameScreen : Screen {
         playerLaserList = LinkedList()
         enemyLaserList = LinkedList()
 
+
+        explosionList = LinkedList()
         batch = SpriteBatch()
 
 
@@ -104,7 +110,7 @@ class GameScreen : Screen {
             enemyShips.add(
                 EnemyShip(
                     WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
-                    40f, 5,
+                    40f, 2,
                     enemyShipTextureRegion,
                     enemyShieldTextureRegion,
                     enemyLaserTextureRegion,
@@ -157,6 +163,8 @@ class GameScreen : Screen {
         detectCollistions()
         //explosions
         renderExplosions(delta)
+
+
         batch.end()
 
     }
@@ -238,11 +246,20 @@ class GameScreen : Screen {
         while (laserListIterator.hasNext()) {
             val laser = laserListIterator.next()
             val enemyShipListIterator = enemyShips.listIterator()
-            while (enemyShipListIterator.hasNext()){
+            while (enemyShipListIterator.hasNext()) {
                 val enemyShip = enemyShipListIterator.next()
                 if (enemyShip.intersects(laser.mBoundingBox)) {
                     //contact with enemy ship
-                    enemyShip.hit(laser)
+                    if (enemyShip.hitAndCheckDestroyed(laser)) {
+                        enemyShipListIterator.remove()
+                        explosionList.add(
+                            Explosion(
+                                explosionTexture,
+                                Rectangle(enemyShip.mBoundingBox),
+                                0.7f,
+                            )
+                        )
+                    }
                     laserListIterator.remove()
                     break
                 }
@@ -257,14 +274,23 @@ class GameScreen : Screen {
             val laser = laserListIterator.next()
             if (playerShip.intersects(laser.mBoundingBox)) {
                 //contact with enemy ship
-                playerShip.hit(laser)
+                playerShip.hitAndCheckDestroyed(laser)
                 laserListIterator.remove()
             }
         }
     }
 
     fun renderExplosions(delta: Float) {
-
+        val explosionListIterator = explosionList.listIterator()
+        while (explosionListIterator.hasNext()) {
+            val explosion: Explosion = explosionListIterator.next()
+            explosion.update(delta)
+            if (explosion.isFinished() == true) {
+                explosionListIterator.remove()
+            } else {
+                explosion.draw(batch)
+            }
+        }
     }
 
     fun renderLaser(delta: Float) {
@@ -277,7 +303,7 @@ class GameScreen : Screen {
             }
         }
         val enemyShipIterator = enemyShips.listIterator()
-        while (enemyShipIterator.hasNext()){
+        while (enemyShipIterator.hasNext()) {
             val enemyShip = enemyShipIterator.next()
             if (enemyShip.canFireLaser()) {
                 val lasers = enemyShip.fireLasers()

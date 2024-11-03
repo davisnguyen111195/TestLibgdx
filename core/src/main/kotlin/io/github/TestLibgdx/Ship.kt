@@ -69,10 +69,13 @@ abstract class Ship(
         return mBoundingBox.overlaps(otherRectangle)
     }
 
-    fun hit(laser: Laser) {
+    fun hitAndCheckDestroyed(laser: Laser): Boolean {
         if (mShield > 0) {
             mShield--
+            return false
         }
+
+        return true
     }
 
     fun draw(batch: Batch) {
