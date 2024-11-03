@@ -44,7 +44,7 @@ class Explosion(
 
     fun draw(batch: SpriteBatch) {
         batch.draw(
-            explosionAnimation?.getKeyFrame(explosionTimer),
+            explosionAnimation.getKeyFrame(explosionTimer),
             boundingBox.x,
             boundingBox.y,
             boundingBox.width,
@@ -52,7 +52,7 @@ class Explosion(
         )
     }
 
-    fun isFinished(): Boolean? {
-        return explosionAnimation?.isAnimationFinished(explosionTimer)
+    fun isFinished(): Boolean {
+        return explosionAnimation.isAnimationFinished(explosionTimer)
     }
 }

@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
-import org.w3c.dom.css.Rect
 import java.util.LinkedList
 
 class GameScreen : Screen {
