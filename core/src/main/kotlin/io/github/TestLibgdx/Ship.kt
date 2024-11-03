@@ -44,7 +44,7 @@ abstract class Ship(
 
     //graphics
     val mShipTexture: TextureRegion = shipTextureRegion
-    val msShieldTexture: TextureRegion = shieldTextureRegion
+    val mShieldTexture: TextureRegion = shieldTextureRegion
     val mLaserTextureRegion: TextureRegion = laserTextureRegion
     var mLaserMovementSpeed: Float = laserMovementSpeed
     var mTimeSinceLastShot: Float = 0f
@@ -54,7 +54,7 @@ abstract class Ship(
     val mLaserWidth: Float = laserWidth
     val mLaserHeight: Float = laserHeight
 
-    fun update(delta: Float) {
+    open fun update(delta: Float) {
         //mBoundingBox.set(mXPosition, mYPosition, mWidth, mHeight)
         mTimeSinceLastShot += delta
     }
@@ -85,7 +85,7 @@ abstract class Ship(
         )
         if (mShield > 0) {
             batch.draw(
-                msShieldTexture,
+                mShieldTexture,
                 mBoundingBox.x,
                 mBoundingBox.y,
                 mBoundingBox.width,

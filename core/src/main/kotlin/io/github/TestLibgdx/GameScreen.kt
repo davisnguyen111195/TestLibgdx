@@ -38,6 +38,8 @@ class GameScreen : Screen {
     private var backgroundOffset = 0
     private val backgroundOffsets = Array(4) { 0F }
     private var backgroundMaxScrollingSpeed = 0f
+    private val timeBetweenEnemySpawns = 3f
+    private var enemySpawnTimer = 0f
 
     //world
     private val WORLD_WIDTH = 72F
@@ -45,8 +47,8 @@ class GameScreen : Screen {
     private val TOUCH_MOVEMENT_THRESHOLD = 0.5f
 
     //game object
-    private var playerShip: Ship
-    private var enemyShip: Ship
+    private var playerShip: PlayerShip
+    private var enemyShips: LinkedList<EnemyShip>
     private var playerLaserList: LinkedList<Laser>
     private var enemyLaserList: LinkedList<Laser>
 
@@ -85,18 +87,8 @@ class GameScreen : Screen {
             45f,
             0.5f
         )
+        enemyShips = LinkedList()
 
-        enemyShip = EnemyShip(
-            WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
-            40f, 5,
-            enemyShipTextureRegion,
-            enemyShieldTextureRegion,
-            enemyLaserTextureRegion,
-            0.3f,
-            5f,
-            50f,
-            0.8f
-        )
 
         playerLaserList = LinkedList()
         enemyLaserList = LinkedList()
@@ -104,6 +96,26 @@ class GameScreen : Screen {
         batch = SpriteBatch()
 
 
+    }
+
+    private fun spawnEnemyShips(delta: Float) {
+        enemySpawnTimer += delta
+        if (enemySpawnTimer > timeBetweenEnemySpawns) {
+            enemyShips.add(
+                EnemyShip(
+                    WORLD_WIDTH / 2, WORLD_HEIGHT * 3 / 4, 10f, 10f,
+                    40f, 5,
+                    enemyShipTextureRegion,
+                    enemyShieldTextureRegion,
+                    enemyLaserTextureRegion,
+                    0.3f,
+                    5f,
+                    50f,
+                    0.8f
+                )
+            )
+            enemySpawnTimer -= timeBetweenEnemySpawns
+        }
     }
 
     override fun dispose() {
@@ -116,16 +128,25 @@ class GameScreen : Screen {
 
     override fun render(delta: Float) {
         batch.begin()
-        detectInput(delta)
-        playerShip.update(delta)
-        enemyShip.update(delta)
-
 
         //scrolling background
         renderBackground(delta)
 
-        //enemy ship
-        enemyShip.draw(batch)
+        detectInput(delta)
+        spawnEnemyShips(delta)
+        playerShip.update(delta)
+        val enemyListIterator: ListIterator<EnemyShip> = enemyShips.listIterator()
+        while (enemyListIterator.hasNext()) {
+            val enemyShip = enemyListIterator.next()
+
+            moveEnemies(enemyShip, delta)
+            enemyShip.update(delta)
+
+            //enemy ship
+            enemyShip.draw(batch)
+        }
+
+
         //player ship
         playerShip.draw(batch)
         //lasers
@@ -138,6 +159,24 @@ class GameScreen : Screen {
         renderExplosions(delta)
         batch.end()
 
+    }
+
+    private fun moveEnemies(enemyShip: EnemyShip, delta: Float) {
+        val leftLimit = -enemyShip.mBoundingBox.x
+        val downLimit = WORLD_HEIGHT / 2 - enemyShip.mBoundingBox.y
+        val rightLimit =
+            WORLD_WIDTH - enemyShip.mBoundingBox.x - enemyShip.mBoundingBox.width
+        val upLimit =
+            WORLD_HEIGHT - enemyShip.mBoundingBox.y - enemyShip.mBoundingBox.height
+        var xMove = enemyShip.getMDirectionVector().x * enemyShip.mMovementSpeed * delta
+        var yMove = enemyShip.getMDirectionVector().y * enemyShip.mMovementSpeed * delta
+
+        if (xMove > 0) xMove = Math.min(xMove, rightLimit)
+        else xMove = Math.max(xMove, leftLimit)
+
+        if (yMove > 0) yMove = Math.min(yMove, upLimit)
+        else yMove = Math.max(yMove, downLimit)
+        enemyShip.translate(xMove, yMove)
     }
 
     private fun detectInput(delta: Float) {
@@ -160,7 +199,7 @@ class GameScreen : Screen {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && downLimit < 0) {
-            playerShip.translate(0f, Math.max(-playerShip.mMovementSpeed * delta, leftLimit))
+            playerShip.translate(0f, Math.max(-playerShip.mMovementSpeed * delta, downLimit))
         }
 
         if (Gdx.input.isTouched) {
@@ -183,10 +222,10 @@ class GameScreen : Screen {
                 var xMove = xTouchDifference / touchDistance * playerShip.mMovementSpeed * delta
                 var yMove = yTouchDifference / touchDistance * playerShip.mMovementSpeed * delta
 
-                if(xMove > 0) xMove = Math.min(xMove, rightLimit)
+                if (xMove > 0) xMove = Math.min(xMove, rightLimit)
                 else xMove = Math.max(xMove, leftLimit)
 
-                if(yMove > 0) yMove = Math.min(yMove, upLimit)
+                if (yMove > 0) yMove = Math.min(yMove, upLimit)
                 else yMove = Math.max(yMove, downLimit)
                 playerShip.translate(xMove, yMove)
             }
@@ -195,25 +234,31 @@ class GameScreen : Screen {
 
     fun detectCollistions() {
         //for each player laser, check whether it intersects an enemy ship
-        var listIterator = playerLaserList.listIterator()
-        while (listIterator.hasNext()) {
-            val laser = listIterator.next()
-            if (enemyShip.intersects(laser.mBoundingBox)) {
-                //contact with enemy ship
-                enemyShip.hit(laser)
-                listIterator.remove()
+        var laserListIterator = playerLaserList.listIterator()
+        while (laserListIterator.hasNext()) {
+            val laser = laserListIterator.next()
+            val enemyShipListIterator = enemyShips.listIterator()
+            while (enemyShipListIterator.hasNext()){
+                val enemyShip = enemyShipListIterator.next()
+                if (enemyShip.intersects(laser.mBoundingBox)) {
+                    //contact with enemy ship
+                    enemyShip.hit(laser)
+                    laserListIterator.remove()
+                    break
+                }
             }
+
         }
 
 
         //for each enemy laser, check whether it intersects an player ship
-        listIterator = enemyLaserList.listIterator()
-        while (listIterator.hasNext()) {
-            val laser = listIterator.next()
+        laserListIterator = enemyLaserList.listIterator()
+        while (laserListIterator.hasNext()) {
+            val laser = laserListIterator.next()
             if (playerShip.intersects(laser.mBoundingBox)) {
                 //contact with enemy ship
                 playerShip.hit(laser)
-                listIterator.remove()
+                laserListIterator.remove()
             }
         }
     }
@@ -231,15 +276,19 @@ class GameScreen : Screen {
                 }
             }
         }
-
-        if (enemyShip.canFireLaser()) {
-            val lasers = enemyShip.fireLasers()
-            for (laser in lasers) {
-                if (laser != null) {
-                    enemyLaserList.add(laser)
+        val enemyShipIterator = enemyShips.listIterator()
+        while (enemyShipIterator.hasNext()){
+            val enemyShip = enemyShipIterator.next()
+            if (enemyShip.canFireLaser()) {
+                val lasers = enemyShip.fireLasers()
+                for (laser in lasers) {
+                    if (laser != null) {
+                        enemyLaserList.add(laser)
+                    }
                 }
             }
         }
+
 
         //draw lasers
         var listIterator = playerLaserList.listIterator()

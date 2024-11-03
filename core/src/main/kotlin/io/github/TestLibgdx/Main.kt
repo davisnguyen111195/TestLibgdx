@@ -4,10 +4,12 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Texture
+import java.util.Random
 
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms. */
 class Main : Game() {
     private lateinit var gameScreen: GameScreen
+
     override fun create() {
         gameScreen = GameScreen()
         setScreen(gameScreen)
@@ -20,6 +22,10 @@ class Main : Game() {
     override fun dispose() {
         super.dispose()
         gameScreen.dispose()
+    }
+
+    companion object {
+        var random : Random = Random()
     }
 
 }
