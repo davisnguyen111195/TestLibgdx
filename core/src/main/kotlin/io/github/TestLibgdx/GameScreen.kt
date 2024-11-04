@@ -284,7 +284,7 @@ class GameScreen : Screen {
         while (explosionListIterator.hasNext()) {
             val explosion: Explosion = explosionListIterator.next()
             explosion.update(delta)
-            if (explosion.isFinished() == true) {
+            if (explosion.isFinished()) {
                 explosionListIterator.remove()
             } else {
                 explosion.draw(batch)
